@@ -11,10 +11,8 @@ const mongoUri = Deno.env.get("MONGO_URI") || "";
 
 app.use(express.json());
 app.use("/static", staticRoutes);
-console.log(mongoUri)
 mongoose.connect(mongoUri)
   .then(() => {
-    console.log("Conectado a MongoDB");
     app.listen(port, () => console.log(`Servidor en http://localhost:${port}`));
   })
   .catch((err) => console.error("Error al conectar a MongoDB:", err));

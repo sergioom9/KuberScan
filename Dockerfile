@@ -11,4 +11,4 @@ RUN apk add --no-cache wget git tar gzip \
     && rm -rf trivy_0.69.1_Linux-ARM64.tar.gz
 USER deno
 
-CMD ["run", "--allow-net", "--allow-run", "--allow-read", "--allow-write", "server.ts"]
+CMD ["run", "--allow-net", "--allow-env", "--allow-sys", "--allow-read","--allow-run", "server.ts"]
