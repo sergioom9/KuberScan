@@ -18,7 +18,7 @@ export const trivyScan = (image: string): Promise<any> => {
   });
 };
 
-//Prevent comand injection
+
 function escapeShell(input: string): string {
   return input.replace(/[^a-zA-Z0-9._/:@-]/g, "");
 }

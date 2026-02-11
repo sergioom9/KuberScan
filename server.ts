@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import staticRoutes from "./routes/static.ts";
-import dynamicRoutes from "./routes/dynamic.ts";
 
 dotenv.config();
 
@@ -12,8 +11,6 @@ const mongoUri = Deno.env.get("MONGO_URI") || "";
 
 app.use(express.json());
 app.use("/static", staticRoutes);
-app.use("/dynamic", dynamicRoutes);
-
 
 mongoose.connect(mongoUri)
   .then(() => {
