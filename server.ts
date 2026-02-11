@@ -1,9 +1,9 @@
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import express from "npm:express@4.18.2";
+import mongoose from "npm:mongoose@8.0.0";
+import { config } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 import staticRoutes from "./routes/static.ts";
 
-dotenv.config();
+await config({ export: true });
 
 const app = express();
 const port = Deno.env.get("PORT") || 3000;

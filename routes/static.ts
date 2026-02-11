@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response } from "npm:express@4.18.2";
 import { TrivyScan } from "../types.ts";
 import { KuberScan } from "../DB/static.ts";
 import { trivyScan } from "../util.ts";
