@@ -1,6 +1,5 @@
 FROM aquasec/trivy:latest
 
-# Install Deno
 RUN apk add --no-cache curl unzip bash
 
 RUN curl -fsSL https://deno.land/install.sh | sh
@@ -15,5 +14,7 @@ RUN chmod +x start.sh
 COPY . .
 
 EXPOSE 3000
+
+ENTRYPOINT []
 
 CMD ["./start.sh"]
