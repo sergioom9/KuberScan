@@ -1,4 +1,4 @@
-import mongoose from "npm:mongoose@8.0.0";
+import mongoose from "mongoose";
 
 const vulnerabilitySchema = new mongoose.Schema({
   VulnerabilityID: String,

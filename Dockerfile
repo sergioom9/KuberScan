@@ -1,17 +1,14 @@
-FROM aquasec/trivy:latest
-
-RUN apk add --no-cache curl unzip bash ca-certificates
-
-RUN curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh
-
-RUN /usr/local/bin/deno --version
-
+FROM denoland/deno:alpine-1.46.0
 WORKDIR /app
-
 COPY . .
 
-EXPOSE 3000
+USER root
+RUN apk add --no-cache wget git tar gzip \
+    && wget https://github.com/aquasecurity/trivy/releases/download/v0.69.1/trivy_0.69.1_Linux-ARM64.tar.gz \
+    && tar zxvf trivy_0.69.1_Linux-ARM64.tar.gz \
+    && mv trivy /usr/local/bin/ \
+    && chmod +x /usr/local/bin/trivy \
+    && rm -rf trivy_0.69.1_Linux-ARM64.tar.gz
+USER deno
 
-ENTRYPOINT []
-
-CMD ["/usr/local/bin/deno", "run", "--allow-all", "server.ts"]
+CMD ["run", "--allow-net", "--allow-run", "--allow-read", "--allow-write", "server.ts"]
