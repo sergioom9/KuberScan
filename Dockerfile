@@ -1,5 +1,6 @@
 FROM aquasec/trivy:latest
 
+# Install Deno
 RUN apk add --no-cache curl unzip bash
 
 RUN curl -fsSL https://deno.land/install.sh | sh
@@ -8,13 +9,13 @@ ENV PATH="$DENO_INSTALL/bin:$PATH"
 
 WORKDIR /app
 
-COPY start.sh .
-RUN chmod +x start.sh
-
+# Copy application files
 COPY . .
 
 EXPOSE 3000
 
+# Override trivy's entrypoint
 ENTRYPOINT []
 
-CMD ["./start.sh"]
+# Run server directly
+CMD ["deno", "run", "--allow-all", "server.ts"]

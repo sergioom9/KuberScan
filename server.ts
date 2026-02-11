@@ -1,86 +1,68 @@
-import express from "npm:express@4.18.2";
-import mongoose from "npm:mongoose@8.0.0";
-import staticRoutes from "./routes/static.ts";
+console.log("=================================");
+console.log("STEP 1: Starting server.ts...");
+console.log("=================================");
 
-console.log("================================");
-console.log("🚀 Trivy Scanner API Starting");
-console.log("================================");
-console.log("📍 Deno version:", Deno.version.deno);
-console.log("📍 TypeScript version:", Deno.version.typescript);
-console.log("📍 V8 version:", Deno.version.v8);
-console.log("================================");
+import express from "npm:express@4.18.2";
+console.log("✅ Express imported");
+
+import mongoose from "npm:mongoose@8.0.0";
+console.log("✅ Mongoose imported");
+
+import staticRoutes from "./routes/static.ts";
+console.log("✅ Routes imported");
+
+console.log("=================================");
+console.log("STEP 2: Initializing app...");
+console.log("=================================");
 
 const app = express();
 const port = parseInt(Deno.env.get("PORT") || "3000");
 const mongoUri = Deno.env.get("MONGO_URI");
 
-console.log("🔍 Environment check:");
-console.log("  - PORT:", port);
-console.log("  - MONGO_URI:", mongoUri ? "✅ Set" : "❌ Not set");
+console.log("Port:", port);
+console.log("MongoDB URI:", mongoUri ? "SET ✅" : "NOT SET ❌");
 
 if (!mongoUri) {
-  console.error("================================");
-  console.error("❌ ERROR: MONGO_URI is required!");
-  console.error("================================");
-  console.error("Please set MONGO_URI in Render environment variables");
+  console.error("FATAL: MONGO_URI environment variable is missing!");
   Deno.exit(1);
 }
 
 app.use(express.json());
 
 app.get("/", (_req, res) => {
-  res.json({ 
-    service: "Trivy Scanner API",
-    status: "running",
-    version: "1.0.0"
-  });
+  res.json({ status: "ok", service: "Trivy Scanner API" });
 });
 
 app.get("/health", (_req, res) => {
-  res.status(200).json({ 
-    status: "ok", 
-    timestamp: new Date().toISOString(),
-    uptime: performance.now()
-  });
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 app.use("/static", staticRoutes);
 
-app.use((err: any, _req: any, res: any, _next: any) => {
-  console.error("❌ Express error:", err);
-  res.status(500).json({ error: "Internal server error" });
-});
+console.log("=================================");
+console.log("STEP 3: Connecting to MongoDB...");
+console.log("=================================");
 
-console.log("🔄 Connecting to MongoDB...");
-
-mongoose.connect(mongoUri)
-  .then(() => {
-    console.log("✅ Connected to MongoDB successfully");
-    console.log("================================");
-    
-    app.listen(port, "0.0.0.0", () => {
-      console.log(`🎉 Server is running!`);
-      console.log(`📡 Listening on 0.0.0.0:${port}`);
-      console.log(`🌐 Health check: http://0.0.0.0:${port}/health`);
-      console.log("================================");
-    });
-  })
-  .catch((err) => {
-    console.error("================================");
-    console.error("❌ MongoDB connection failed!");
-    console.error("================================");
-    console.error("Error details:", err.message);
-    console.error("Stack:", err.stack);
-    console.error("================================");
-    Deno.exit(1);
+try {
+  await mongoose.connect(mongoUri);
+  console.log("✅ MongoDB connected successfully!");
+  
+  console.log("=================================");
+  console.log("STEP 4: Starting HTTP server...");
+  console.log("=================================");
+  
+  app.listen(port, "0.0.0.0", () => {
+    console.log("=================================");
+    console.log("🎉 SERVER IS RUNNING!");
+    console.log(`📡 Port: ${port}`);
+    console.log(`🌐 Health: http://0.0.0.0:${port}/health`);
+    console.log("=================================");
   });
-
-globalThis.addEventListener("unhandledrejection", (e) => {
-  console.error("❌ Unhandled promise rejection:", e.reason);
-});
-
-globalThis.addEventListener("error", (e) => {
-  console.error("❌ Uncaught error:", e.error);
-});
-
-console.log("✅ Server initialization complete, waiting for MongoDB...");
+} catch (err: any) {
+  console.error("=================================");
+  console.error("❌ STARTUP FAILED!");
+  console.error("=================================");
+  console.error("Error:", err.message);
+  console.error("Stack:", err.stack);
+  Deno.exit(1);
+}
