@@ -1,5 +1,3 @@
-
-
 export interface TrivyVulnerability {
   VulnerabilityID?: string;
   PkgName?: string;
@@ -16,5 +14,3 @@ export interface TrivyScan {
   image: string;
   Vulnerability: TrivyVulnerability[];
 }
-
-

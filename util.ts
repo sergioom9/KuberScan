@@ -4,16 +4,18 @@ export const trivyScan = async (image: string): Promise<any> => {
   }
 
   const sanitizedImage = escapeShell(image);
-  
+
   console.log(`🔍 Starting Trivy scan for: ${sanitizedImage}`);
 
   const command = new Deno.Command("trivy", {
     args: [
       "image",
-      "--format", "json",
+      "--format",
+      "json",
       "--quiet",
-      "--timeout", "10m",
-      sanitizedImage
+      "--timeout",
+      "10m",
+      sanitizedImage,
     ],
     stdout: "piped",
     stderr: "piped",
@@ -27,7 +29,7 @@ export const trivyScan = async (image: string): Promise<any> => {
   }
 
   const output = new TextDecoder().decode(stdout);
-  
+
   try {
     return JSON.parse(output);
   } catch (e: any) {

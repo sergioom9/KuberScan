@@ -51,7 +51,7 @@ router.post("/scan", async (req: Request, res: Response) => {
       ScanID: uuid,
       image: req.body.image,
       Vulnerability: [],
-      status: "pending"
+      status: "pending",
     });
     await scan.save();
 
@@ -59,19 +59,22 @@ router.post("/scan", async (req: Request, res: Response) => {
 
     (async () => {
       try {
-        console.log(`🔄 Processing scan ${scanId} for image: ${req.body.image}`);
+        console.log(
+          `🔄 Processing scan ${scanId} for image: ${req.body.image}`,
+        );
         const result = await trivyScan(req.body.image);
-        
+
         await KuberScan.updateOne(
           { ScanID: scanId },
           {
             $set: {
               status: "done",
-              Vulnerability: result.Results && result.Results[0]?.Vulnerabilities
-                ? result.Results[0].Vulnerabilities
-                : [],
+              Vulnerability:
+                result.Results && result.Results[0]?.Vulnerabilities
+                  ? result.Results[0].Vulnerabilities
+                  : [],
             },
-          }
+          },
         );
         console.log(`✅ Scan ${scanId} completed successfully`);
       } catch (e: any) {
@@ -80,7 +83,7 @@ router.post("/scan", async (req: Request, res: Response) => {
           { ScanID: scanId },
           {
             $set: { status: `Error: ${e.message}` },
-          }
+          },
         );
       }
     })();

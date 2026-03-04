@@ -12,12 +12,10 @@ const vulnerabilitySchema = new mongoose.Schema({
 });
 
 const KuberScanSchema = new mongoose.Schema({
-  ScanID : { type: String, required: true },
+  ScanID: { type: String, required: true },
   image: { type: String, required: true },
   Vulnerability: [vulnerabilitySchema],
   status: { type: String, default: "pending" },
 });
-
-
 
 export const KuberScan = mongoose.model("KuberStaticScan", KuberScanSchema);

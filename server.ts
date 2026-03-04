@@ -15,4 +15,4 @@ mongoose.connect(mongoUri)
   .then(() => {
     app.listen(port, () => console.log(`Servidor en http://localhost:${port}`));
   })
-  .catch((err) => console.error("Error al conectar a MongoDB:", err));
+  .catch((err: unknown) => console.error("Error al conectar a MongoDB:", err));
