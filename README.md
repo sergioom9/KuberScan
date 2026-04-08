@@ -1,129 +1,49 @@
-# StaticAlerts API
+# KUBERSCAN - KuberScan_Static
 
-`StaticAlerts` is the static image scan backend for KUBERSCAN. It runs Trivy
-scans, stores scan jobs/results in MongoDB, and exposes endpoints to create,
-run, and read scans.
+This repository contains:
 
-## Current Status
+- `KuberScan_Static`: Image scan backend (Express + Mongo + Trivy).
 
-Basic project check is OK:
+## Current Features (Updated)
 
-- `deno check server.ts` passes.
-- Deno prints a non-blocking warning that `target` in `deno.json` is ignored.
+### Static Scan Backend (KuberScan_Static)
 
-## Tech Stack
+- **Asynchronous Image Scanning**
+  - Uses **Trivy** as the core security engine to analyze container images.
+  - Background execution to handle long-running scan processes without blocking the API.
 
-- Deno + Express
-- MongoDB + Mongoose
-- Trivy CLI
+- **Scan Management API**
+  - `POST /static/save`: Initializes and stores a new scan record in the database.
+  - `POST /static/scan`: Triggers the actual Trivy execution for a specific image.
+  - `GET /static/:scanid`: Retrieves scan status (`pending`, `completed`, `failed`) and full vulnerability results.
 
-## Project Structure
+- **Data Persistence**
+  - Full integration with **MongoDB** to store scan history and CVE reports.
+  - Efficient storage of scan metadata for quick retrieval by the Frontend.
 
-- `server.ts`: API bootstrap, Mongo connection, route mounting.
-- `routes/static.ts`: scan API routes.
-- `DB/static.ts`: Mongoose schema/model for scan documents.
-- `util.ts`: Trivy execution helper.
-- `types.ts`: TypeScript interfaces.
-- `Dockerfile`: container image with Trivy installed.
+- **Trivy Integration**
+  - Automated binary execution to detect OS packages vulnerabilities and application dependencies.
+  - Standardized JSON output processing.
 
-## Data Model
+## End-to-End Static Flow
 
-Mongo collection model: `KuberStaticScan`
+1. **Initialization**: Frontend sends image data to `POST /static/save`.
+2. **Scanning**: System triggers `POST /static/scan` which launches a Trivy job.
+3. **Storage**: Upon completion, results are parsed and saved to the `static_scans` collection in MongoDB.
+4. **Delivery**: Frontend requests results via `GET /static/:scanid` to display vulnerability charts and details.
 
-Fields:
+## Quick Start
 
-- `ScanID` (string, required)
-- `image` (string, required)
-- `Vulnerability` (array)
-- `status` (string, default: `pending`)
-
-## API Endpoints
-
-Base URL example (local):
-
-- `http://localhost:8000`
-
-### `POST /static/save`
-
-Creates a scan document without executing Trivy.
-
-Request body:
-
-```json
-{
-  "image": "nginx:latest"
-}
-```
-
-Response:
-
-- `200` with created scan object.
-
-### `POST /static/scan`
-
-Creates a scan job and launches Trivy asynchronously.
-
-Request body:
-
-```json
-{
-  "image": "nginx:latest"
-}
-```
-
-Behavior:
-
-- Creates scan with `status: "pending"`.
-- Runs Trivy in background.
-- Updates document:
-  - `status: "done"` on success
-  - `status: "Error: ..."` on failure
-  - fills `Vulnerability` from Trivy output.
-
-Response:
-
-- `200` with `{ "scanId": "..." }`.
-
-### `GET /static/:scanid`
-
-Fetches scan data by `ScanID`.
-
-Response:
-
-- `200` scan document
-- `404` not found
-
-## Environment
-
-Create `.env` from `.env.example` and set:
-
-- `MONGO_URI=<your-mongodb-connection-string>`
-
-## Run
+### Prerequisites
+- **Deno** runtime.
+- **Trivy** installed (or running via Docker).
+- **MongoDB** instance.
 
 ### Development
 
 ```bash
+# Navigate to the project directory
+cd KuberScan_Static
+
+# Run the development server
 deno task dev
-```
-
-### Start (with required permissions)
-
-```bash
-deno task start
-```
-
-## Docker
-
-Build and run:
-
-```bash
-docker build -t deno-trivy-app .
-docker run -it -p 8000:8000 --env-file .env deno-trivy-app
-```
-
-## Notes
-
-- Trivy binary must be available in runtime (Dockerfile already installs it).
-- Image input is sanitized in `util.ts` before command execution.
-- `POST /static/scan` is async: call `GET /static/:scanid` to poll status.
